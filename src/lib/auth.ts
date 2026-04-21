@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
+import { sql } from "@vercel/postgres";
 
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -14,11 +15,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
-        const db = (process.env as any).DB; // D1 binding
-        
-        const user = await db.prepare("SELECT * FROM users WHERE email = ?")
-          .bind(credentials.email)
-          .first();
+        const { rows } = await sql`SELECT * FROM users WHERE email = ${credentials.email as string}`;
+        const user = rows[0];
 
         if (!user || user.status === 'blocked') return null;
 

@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
+import { sql } from "@vercel/postgres";
 
 async function checkAdmin() {
   const session = await auth();
@@ -13,29 +14,26 @@ async function checkAdmin() {
 
 export async function getUsers() {
   await checkAdmin();
-  const db = (process.env as any).DB;
-  return await db.prepare("SELECT id, email, role, status FROM users").all();
+  const { rows } = await sql`SELECT id, email, role, status FROM users`;
+  return { results: rows };
 }
 
 export async function blockUser(id: string, block: boolean) {
   await checkAdmin();
-  const db = (process.env as any).DB;
   const status = block ? 'blocked' : 'active';
-  await db.prepare("UPDATE users SET status = ? WHERE id = ?").bind(status, id).run();
+  await sql`UPDATE users SET status = ${status} WHERE id = ${id}`;
   revalidatePath("/admin");
 }
 
 export async function deleteUser(id: string) {
   await checkAdmin();
-  const db = (process.env as any).DB;
-  await db.prepare("DELETE FROM users WHERE id = ?").bind(id).run();
+  await sql`DELETE FROM users WHERE id = ${id}`;
   revalidatePath("/admin");
 }
 
 export async function resetUserPassword(id: string, newPassword: string) {
   await checkAdmin();
-  const db = (process.env as any).DB;
   const passwordHash = await bcrypt.hash(newPassword, 10);
-  await db.prepare("UPDATE users SET password_hash = ? WHERE id = ?").bind(passwordHash, id).run();
+  await sql`UPDATE users SET password_hash = ${passwordHash} WHERE id = ${id}`;
   revalidatePath("/admin");
 }

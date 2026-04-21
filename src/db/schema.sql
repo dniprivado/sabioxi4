@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
   password_hash TEXT NOT NULL,
   role TEXT DEFAULT 'user', -- 'user' or 'admin'
   status TEXT DEFAULT 'active', -- 'active' or 'blocked'
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS lessons (
@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS lessons (
   title TEXT NOT NULL,
   questions TEXT NOT NULL, -- JSON string
   author_id TEXT,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (author_id) REFERENCES users(id)
 );
 

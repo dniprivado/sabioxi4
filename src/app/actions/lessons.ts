@@ -2,13 +2,13 @@
 
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { sql } from "@vercel/postgres";
 
 export async function getLessons() {
-  const db = (process.env as any).DB;
-  const { results } = await db.prepare("SELECT * FROM lessons ORDER BY created_at DESC").all();
-  return results.map((l: any) => ({
+  const { rows } = await sql`SELECT * FROM lessons ORDER BY created_at DESC`;
+  return rows.map((l: any) => ({
     ...l,
-    questions: JSON.parse(l.questions)
+    questions: typeof l.questions === 'string' ? JSON.parse(l.questions) : l.questions
   }));
 }
 
@@ -16,12 +16,11 @@ export async function addLessonAction(title: string, questions: any[]) {
   const session = await auth();
   if (!session?.user) throw new Error("Debes iniciar sesión");
 
-  const db = (process.env as any).DB;
   const id = Math.random().toString(36).substring(2, 9);
+  const authorId = (session.user as any).id;
+  const questionsJson = JSON.stringify(questions);
   
-  await db.prepare("INSERT INTO lessons (id, title, questions, author_id) VALUES (?, ?, ?, ?)")
-    .bind(id, title, JSON.stringify(questions), (session.user as any).id)
-    .run();
+  await sql`INSERT INTO lessons (id, title, questions, author_id) VALUES (${id}, ${title}, ${questionsJson}, ${authorId})`;
 
   revalidatePath("/");
 }
@@ -30,12 +29,10 @@ export async function getUserScore() {
   const session = await auth();
   if (!session?.user) return 0;
 
-  const db = (process.env as any).DB;
-  const res = await db.prepare("SELECT score FROM user_scores WHERE user_id = ?")
-    .bind((session.user as any).id)
-    .first();
+  const userId = (session.user as any).id;
+  const { rows } = await sql`SELECT score FROM user_scores WHERE user_id = ${userId}`;
   
-  return res ? res.score : 0;
+  return rows[0] ? rows[0].score : 0;
 }
 
 export async function incrementUserScoreAction() {
@@ -43,13 +40,12 @@ export async function incrementUserScoreAction() {
   if (!session?.user) return;
 
   const userId = (session.user as any).id;
-  const db = (process.env as any).DB;
 
-  const res = await db.prepare("SELECT score FROM user_scores WHERE user_id = ?").bind(userId).first();
+  const { rows } = await sql`SELECT score FROM user_scores WHERE user_id = ${userId}`;
   
-  if (res) {
-    await db.prepare("UPDATE user_scores SET score = score + 1 WHERE user_id = ?").bind(userId).run();
+  if (rows[0]) {
+    await sql`UPDATE user_scores SET score = score + 1 WHERE user_id = ${userId}`;
   } else {
-    await db.prepare("INSERT INTO user_scores (user_id, score) VALUES (?, 1)").bind(userId).run();
+    await sql`INSERT INTO user_scores (user_id, score) VALUES (${userId}, 1)`;
   }
 }

@@ -3,6 +3,7 @@
 import bcrypt from "bcryptjs";
 import { signIn } from "@/lib/auth";
 import { AuthError } from "next-auth";
+import { sql } from "@vercel/postgres";
 
 export async function loginAction(formData: FormData) {
   const email = formData.get("email") as string;
@@ -33,22 +34,19 @@ export async function signupAction(formData: FormData) {
 
   if (!email || !password) return "Email y contraseña requeridos.";
 
-  const db = (process.env as any).DB;
-  
   // Check if user exists
-  const existingUser = await db.prepare("SELECT id FROM users WHERE email = ?").bind(email).first();
-  if (existingUser) return "El usuario ya existe.";
+  const { rows: existingUsers } = await sql`SELECT id FROM users WHERE email = ${email}`;
+  if (existingUsers.length > 0) return "El usuario ya existe.";
 
   const id = Math.random().toString(36).substring(2, 15);
   const passwordHash = await bcrypt.hash(password, 10);
   
-  // First user is admin (optional logic, or just make it user)
-  const userCount = await db.prepare("SELECT count(*) as count FROM users").first();
-  const role = userCount.count === 0 ? 'admin' : 'user';
+  // First user is admin
+  const { rows: userCountRows } = await sql`SELECT count(*) as count FROM users`;
+  const userCount = parseInt(userCountRows[0].count);
+  const role = userCount === 0 ? 'admin' : 'user';
 
-  await db.prepare("INSERT INTO users (id, email, password_hash, role) VALUES (?, ?, ?, ?)")
-    .bind(id, email, passwordHash, role)
-    .run();
+  await sql`INSERT INTO users (id, email, password_hash, role) VALUES (${id}, ${email}, ${passwordHash}, ${role})`;
 
   await signIn("credentials", {
     email,
