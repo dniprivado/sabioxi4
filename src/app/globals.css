@@ -1,0 +1,243 @@
+:root {
+  --background: 0 0% 100%;
+  --foreground: 210 20% 15%;
+  --card: 0 0% 100%;
+  --card-foreground: 210 20% 15%;
+  --primary: 90 75% 45%; /* Duolingo Green: #58cc02 */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 197 90% 53%; /* Duolingo Blue: #1cb0f6 */
+  --secondary-foreground: 0 0% 100%;
+  --muted: 0 0% 96%;
+  --muted-foreground: 210 10% 40%;
+  --accent: 47 100% 50%; /* Duolingo Yellow: #ffc800 */
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 100% 64%; /* Duolingo Red: #ff4b4b */
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 90%;
+  --input: 0 0% 90%;
+  --ring: 90 75% 45%;
+  --radius: 1rem;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Typography */
+h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #3c3c3c;
+  letter-spacing: -0.01em;
+  margin-bottom: 1.5rem;
+}
+
+h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #4b4b4b;
+}
+
+p {
+  color: #777;
+  line-height: 1.5;
+}
+
+/* Duolingo-style Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem 1.5rem;
+  border-radius: var(--radius);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: filter 0.1s ease, transform 0.1s ease;
+  border: none;
+  font-size: 0.9rem;
+  width: 100%;
+  position: relative;
+}
+
+.btn:active {
+  transform: translateY(2px);
+  filter: brightness(0.95);
+}
+
+.btn-primary {
+  background-color: #58cc02;
+  color: white;
+  box-shadow: 0 4px 0 #46a302;
+  margin-bottom: 4px;
+}
+
+.btn-primary:active {
+  box-shadow: 0 0px 0 #46a302;
+}
+
+.btn-secondary {
+  background-color: #1cb0f6;
+  color: white;
+  box-shadow: 0 4px 0 #1899d6;
+  margin-bottom: 4px;
+}
+
+.btn-secondary:active {
+  box-shadow: 0 0px 0 #1899d6;
+}
+
+.btn-outline {
+  background-color: white;
+  color: #afafaf;
+  border: 2px solid #e5e5e5;
+  box-shadow: 0 2px 0 #e5e5e5;
+  margin-bottom: 2px;
+}
+
+/* Cards & Layout */
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.card {
+  background: white;
+  border: 2px solid #e5e5e5;
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  transition: background-color 0.2s ease;
+}
+
+.card-interactive {
+  cursor: pointer;
+}
+
+.card-interactive:hover {
+  background-color: #f7f7f7;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Lesson UI Components */
+.progress-container {
+  width: 100%;
+  height: 16px;
+  background-color: #e5e5e5;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 1.5rem 0;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #58cc02;
+  border-radius: 8px;
+  transition: width 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+  position: relative;
+}
+
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 8px;
+  right: 8px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+}
+
+.answer-option {
+  width: 100%;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  border: 2px solid #e5e5e5;
+  border-radius: var(--radius);
+  background: white;
+  font-size: 1.1rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #e5e5e5;
+  transition: all 0.1s ease;
+  color: #4b4b4b;
+}
+
+.answer-option:hover:not(:disabled) {
+  background-color: #f7f7f7;
+}
+
+.answer-option:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #e5e5e5;
+}
+
+.answer-option.selected {
+  border-color: #84d8ff;
+  background-color: #ddf4ff;
+  color: #1899d6;
+  box-shadow: 0 4px 0 #84d8ff;
+}
+
+.answer-option.correct {
+  border-color: #58cc02;
+  background-color: #d7ffb8;
+  color: #46a302;
+  box-shadow: 0 4px 0 #58cc02;
+}
+
+.answer-option.incorrect {
+  border-color: #ff4b4b;
+  background-color: #ffdbdb;
+  color: #ea2b2b;
+  box-shadow: 0 4px 0 #ff4b4b;
+}
+
+/* Animations */
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+.animate-pop {
+  animation: pop 0.3s ease;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .container {
+    padding: 1rem;
+  }
+  
+  h1 {
+    font-size: 1.5rem;
+  }
+  
+  .btn {
+    padding: 1rem;
+  }
+}
